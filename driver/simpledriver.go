@@ -61,12 +61,11 @@ func (s *SimpleDriver) HandleReadCommands(deviceName string, protocols map[strin
 		attributes1.transcoding = tmpMap["transcoding"]
 		attributes1.handleReturnRules = tmpMap["handleReturnRules"]
 	}
-	fmt.Println("CMD: " + attributes1.cmdContent)
 	var handleReturnRuleList []handleReturnRule
 
 	if attributes1.handleReturnRules != "" {
-		sssss := attributes1.handleReturnRules
-		json.Unmarshal([]byte(sssss), &handleReturnRuleList)
+		handleReturnRules := attributes1.handleReturnRules
+		json.Unmarshal([]byte(handleReturnRules), &handleReturnRuleList)
 	}
 	//多执行一次保证获取的字段正确
 	value12, by1, err := getValuebyCmdString(attributes1.cmdContent, protocol1.SerialPort, protocol1.BaudRate, protocol1.DataBits, protocol1.StopBits, protocol1.Parity)
@@ -180,7 +179,6 @@ func (s *SimpleDriver) HandleReadCommands(deviceName string, protocols map[strin
 
 				//一些数值型的计算----float
 			} else if handleReturnRuleList[j].ReturnType == 2 {
-				fmt.Println("follow2")
 				returnStringMap["success"] = "1"
 				value := handleFloatValue(by1, handleReturnRuleList[j].GetSomeArray, handleReturnRuleList[j].Scale, handleReturnRuleList[j].AdditiveFactor, handleReturnRuleList[j].WholeOrseparate)
 				fmt.Printf("%f", value)
@@ -204,7 +202,6 @@ func (s *SimpleDriver) HandleReadCommands(deviceName string, protocols map[strin
 
 				/*****************判断范围--开始************************/
 				if handleReturnRuleList[j].ReadTypeReturnValueRange != "" {
-					fmt.Println("follow3")
 					string1 := handleReturnRuleList[j].ReadTypeReturnValueRange
 					if strings.Contains(string1, "-") {
 						list := strings.Split(string1, "-")
@@ -242,7 +239,6 @@ func (s *SimpleDriver) HandleReadCommands(deviceName string, protocols map[strin
 
 				//一些数值型的计算----int
 			} else if handleReturnRuleList[j].ReturnType == 1 {
-				fmt.Println("follow4")
 				returnStringMap["success"] = "1"
 				value := handleFloatValue(by1, handleReturnRuleList[j].GetSomeArray, handleReturnRuleList[j].Scale, handleReturnRuleList[j].AdditiveFactor, handleReturnRuleList[j].WholeOrseparate)
 				fmt.Printf("%f", value)
@@ -263,7 +259,6 @@ func (s *SimpleDriver) HandleReadCommands(deviceName string, protocols map[strin
 
 				/*****************判断范围--开始************************/
 				if handleReturnRuleList[j].ReadTypeReturnValueRange != "" {
-					fmt.Println("follow5")
 					string1 := handleReturnRuleList[j].ReadTypeReturnValueRange
 					if strings.Contains(string1, "-") {
 						list := strings.Split(string1, "-")
@@ -295,7 +290,6 @@ func (s *SimpleDriver) HandleReadCommands(deviceName string, protocols map[strin
 						returnStringMap = mapPutAll(returnStringMap, handleReturnRuleList[j].OtherReadTypeAndValue)
 					}
 					valueString, _ := json.Marshal(returnStringMap)
-
 					cv = dsModels.NewStringValue(req.DeviceResourceName, now, string(valueString))
 					res[i] = cv
 				}
