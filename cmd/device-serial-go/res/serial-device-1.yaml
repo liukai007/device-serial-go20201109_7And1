@@ -1,0 +1,311 @@
+name: "XY-G10-485-4port"
+manufacturer: "Shenzhen teplice technology co., LTD"
+model: "XY-G10-485"
+labels:
+  - "Serial"
+  - "4 port"
+description: "Intelligent-power"
+
+deviceResources:
+  - name: "power"
+    description: "get power"
+    attributes:
+      {"cmdContent":"01 04 00 04 00 01 70 0B","handleReturnRules":"[{\"additiveFactor\":0.0,\"getSomeArray\":\"4 5\",\"isArrayType\":1,\"isLengthVerify\":0,\"rawResult\":\"\",\"readTypeName\":\"voltage\",\"returnType\":0,\"rightResult\":\"\",\"scale\":\"1\"}]"}
+    properties:
+      value:
+        { type: "Float32", readWrite: "R", defaultValue: "0.00",floatEncoding: "eNotation" }
+      units:
+        { type: "String", readWrite: "R", defaultValue: "" }
+  - name: "current"
+    description: "get current"
+    attributes:
+      {"cmdContent":"01 04 00 03 00 01 C1 CA","handleReturnRules":"[{\"additiveFactor\":0.0,\"getSomeArray\":\"4 5\",\"isArrayType\":1,\"isLengthVerify\":0,\"rawResult\":\"\",\"readTypeName\":\"electricCurrent\",\"returnType\":0,\"rightResult\":\"\",\"scale\":\"0.01\"}]"}
+    properties:
+      value:
+        { type: "Float32", readWrite: "R", defaultValue: "0.00",floatEncoding: "eNotation" }
+      units:
+        { type: "String", readWrite: "R", defaultValue: "" }
+
+  - name: "voltage"
+    description: "get voltage"
+    attributes:
+      {"cmdContent":"01 04 00 02 00 01 90 0A","handleReturnRules":"[{\"additiveFactor\":0.0,\"getSomeArray\":\"3 4\",\"isArrayType\":1,\"isLengthVerify\":0,\"rawResult\":\"\",\"readTypeName\":\"voltage\",\"returnType\":0,\"rightResult\":\"\",\"scale\":\"0.1\"}]"}
+    properties:
+      value:
+        { type: "Float32", readWrite: "R", defaultValue: "0.00",floatEncoding: "eNotation" }
+      units:
+        { type: "String", readWrite: "R", defaultValue: "" }
+
+  - name: "open1way"
+    description: "open first way"
+    attributes:
+      { cmdContent: "01 05 00 00 FF 00 8C 3A",rightResultValue: "01 05 00 00 FF 00 8C 3A",transcoding: 1,returnArray: 0 }
+    properties:
+      value:
+        { type: "String", readWrite: "R", defaultValue: "0" }
+      units:
+        { type: "String", readWrite: "R", defaultValue: "" }
+  - name: "close1way"
+    description: "close first way"
+    attributes:
+      { cmdContent: "01 05 00 00 00 00 CD CA",rightResultValue: "01 05 00 00 00 00 CD CA",transcoding: 1,returnArray: 0 }
+    properties:
+      value:
+        { type: "String", readWrite: "R", defaultValue: "0" }
+      units:
+        { type: "String", readWrite: "R", defaultValue: "" }
+  - name: "open2way"
+    description: "open 2 way"
+    attributes:
+      { cmdContent: "01 05 00 01 FF 00 DD FA",rightResultValue: "01 05 00 01 FF 00 DD FA",transcoding: 1,returnArray: 0 }
+    properties:
+      value:
+        { type: "String", readWrite: "R", defaultValue: "0" }
+      units:
+        { type: "String", readWrite: "R", defaultValue: "" }
+  - name: "close2way"
+    description: "close 2 way"
+    attributes:
+      { cmdContent: "01 05 00 01 00 00 9C 0A",rightResultValue: "01 05 00 01 00 00 9C 0A",transcoding: 1,returnArray: 0 }
+    properties:
+      value:
+        { type: "String", readWrite: "R", defaultValue: "0" }
+      units:
+        { type: "String", readWrite: "R", defaultValue: "" }
+  - name: "open3way"
+    description: "open 3 way"
+    attributes:
+      { cmdContent: "01 05 00 02 FF 00 2D FA",rightResultValue: "01 05 00 02 FF 00 2D FA",transcoding: 1,returnArray: 0 }
+    properties:
+      value:
+        { type: "String", readWrite: "R", defaultValue: "0" }
+      units:
+        { type: "String", readWrite: "R", defaultValue: "" }
+  - name: "close3way"
+    description: "close 3 way"
+    attributes:
+      { cmdContent: "01 05 00 02 00 00 6C 0A",rightResultValue: "01 05 00 02 00 00 6C 0A",transcoding: 1,returnArray: 0 }
+    properties:
+      value:
+        { type: "String", readWrite: "R", defaultValue: "0" }
+      units:
+        { type: "String", readWrite: "R", defaultValue: "" }
+  - name: "open4way"
+    description: "open 4 way"
+    attributes:
+      { cmdContent: "01 05 00 03 FF 00 7C 3A",rightResultValue: "01 05 00 03 FF 00 7C 3A",transcoding: 1,returnArray: 0 }
+    properties:
+      value:
+        { type: "String", readWrite: "R", defaultValue: "0" }
+      units:
+        { type: "String", readWrite: "R", defaultValue: "" }
+  - name: "close4way"
+    description: "close 4 way"
+    attributes:
+      { cmdContent: "01 05 00 03 00 00 3D CA",rightResultValue: "01 05 00 03 00 00 3D CA",transcoding: 1,returnArray: 0 }
+    properties:
+      value:
+        { type: "String", readWrite: "R", defaultValue: "0" }
+      units:
+        { type: "String", readWrite: "R", defaultValue: "" }
+  - name: "openAllway"
+    description: "open all way"
+    attributes:
+      { cmdContent: "01 0F 00 00 00 04 01 FF 7E D6",resultValueLen: "1",judgeSymbol: "1",transcoding: 1,returnArray: 0 }
+    properties:
+      value:
+        { type: "String", readWrite: "R", defaultValue: "0" }
+      units:
+        { type: "String", readWrite: "R", defaultValue: "" }
+  - name: "closeAllway"
+    description: "close all way"
+    attributes:
+      { cmdContent: "01 0F 00 00 00 04 01 00 3E 96",resultValueLen: "1",judgeSymbol: "1",transcoding: 1,returnArray: 0 }
+    properties:
+      value:
+        { type: "String", readWrite: "R", defaultValue: "0" }
+      units:
+        { type: "String", readWrite: "R", defaultValue: "" }
+
+
+
+deviceCommands:
+  - name: "Power"
+    get:
+      - { operation: "get", object: "power", property: "value", parameter: "Power" }
+  - name: "Current"
+    get:
+      - { operation: "get", object: "current", property: "value1", parameter: "Current" }
+  - name: "Voltage"
+    get:
+      - { operation: "get", object: "voltage", property: "value", parameter: "Voltage" }
+  - name: "open1way"
+    get:
+      - { operation: "get", object: "open1way", property: "value",deviceResource: "open1way" }
+  - name: "close1way"
+    get:
+      - { operation: "get", object: "close1way", property: "value",deviceResource: "close1way" }
+  - name: "open2way"
+    get:
+      - { operation: "get", object: "open2way", property: "value",deviceResource: "open2way" }
+  - name: "close2way"
+    get:
+      - { operation: "get", object: "close2way", property: "value",deviceResource: "close2way" }
+  - name: "open3way"
+    get:
+      - { operation: "get", object: "open3way", property: "value",deviceResource: "open3way" }
+  - name: "close3way"
+    get:
+      - { operation: "get", object: "close3way", property: "value",deviceResource: "close3way" }
+  - name: "open4way"
+    get:
+      - { operation: "get", object: "open4way", property: "value",deviceResource: "open4way" }
+  - name: "close4way"
+    get:
+      - { operation: "get", object: "close4way", property: "value",deviceResource: "close4way" }
+  - name: "openAllway"
+    get:
+      - { operation: "get", object: "openAllway", property: "value",deviceResource: "openAllway" }
+  - name: "closeAllway"
+    get:
+      - { operation: "get", object: "closeAllway", property: "value",deviceResource: "closeAllway" }
+
+
+
+coreCommands:
+  - name: "Power"
+    get:
+      path: "/api/v1/device/{deviceId}/Power"
+      responses:
+        - code: "200"
+          description: ""
+          expectedValues: [ "Power" ]
+        - code: "503"
+          description: "service unavailable"
+          expectedValues: [ ]
+  - name: "Current"
+    get:
+      path: "/api/v1/device/{deviceId}/Current"
+      responses:
+        - code: "200"
+          description: ""
+          expectedValues: [ "Current" ]
+        - code: "503"
+          description: "service unavailable"
+          expectedValues: [ ]
+  - name: "Voltage"
+    get:
+      path: "/api/v1/device/{deviceId}/Voltage"
+      responses:
+        - code: "200"
+          description: ""
+          expectedValues: [ "Voltage" ]
+        - code: "503"
+          description: "service unavailable"
+          expectedValues: [ ]
+  - name: "open1way"
+    get:
+      path: "/api/v1/device/{deviceId}/open1way"
+      responses:
+        - code: "200"
+          description: ""
+          expectedValues: [ "1" ]
+        - code: "503"
+          description: "service unavailable"
+          expectedValues: [ ]
+
+  - name: "close1way"
+    get:
+      path: "/api/v1/device/{deviceId}/close1way"
+      responses:
+        - code: "200"
+          description: ""
+          expectedValues: [ "1" ]
+        - code: "503"
+          description: "service unavailable"
+          expectedValues: [ ]
+  - name: "open2way"
+    get:
+      path: "/api/v1/device/{deviceId}/open2way"
+      responses:
+        - code: "200"
+          description: ""
+          expectedValues: [ "1" ]
+        - code: "503"
+          description: "service unavailable"
+          expectedValues: [ ]
+
+  - name: "close2way"
+    get:
+      path: "/api/v1/device/{deviceId}/close2way"
+      responses:
+        - code: "200"
+          description: ""
+          expectedValues: [ "1" ]
+        - code: "503"
+          description: "service unavailable"
+          expectedValues: [ ]
+  - name: "open3way"
+    get:
+      path: "/api/v1/device/{deviceId}/open3way"
+      responses:
+        - code: "200"
+          description: ""
+          expectedValues: [ "1" ]
+        - code: "503"
+          description: "service unavailable"
+          expectedValues: [ ]
+
+  - name: "close3way"
+    get:
+      path: "/api/v1/device/{deviceId}/close3way"
+      responses:
+        - code: "200"
+          description: ""
+          expectedValues: [ "1" ]
+        - code: "503"
+          description: "service unavailable"
+          expectedValues: [ ]
+  - name: "open4way"
+    get:
+      path: "/api/v1/device/{deviceId}/open4way"
+      responses:
+        - code: "200"
+          description: ""
+          expectedValues: [ "1" ]
+        - code: "503"
+          description: "service unavailable"
+          expectedValues: [ ]
+
+  - name: "close4way"
+    get:
+      path: "/api/v1/device/{deviceId}/close4way"
+      responses:
+        - code: "200"
+          description: ""
+          expectedValues: [ "1" ]
+        - code: "503"
+          description: "service unavailable"
+          expectedValues: [ ]
+
+  - name: "openAllway"
+    get:
+      path: "/api/v1/device/{deviceId}/openAllway"
+      responses:
+        - code: "200"
+          description: ""
+          expectedValues: [ "1" ]
+        - code: "503"
+          description: "service unavailable"
+          expectedValues: [ ]
+
+  - name: "closeAllway"
+    get:
+      path: "/api/v1/device/{deviceId}/closeAllway"
+      responses:
+        - code: "200"
+          description: ""
+          expectedValues: [ "1" ]
+        - code: "503"
+          description: "service unavailable"
+          expectedValues: [ ]
