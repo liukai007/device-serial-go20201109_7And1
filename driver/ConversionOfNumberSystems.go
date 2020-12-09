@@ -13,14 +13,11 @@ strconv.ParseInt(s string, base int, bitSize int)
 */
 func Tran16StringTo10(content string, WholeOrseparate int) string {
 	if WholeOrseparate == 0 {
-		fmt.Println("content=====1")
-		fmt.Println(content)
 		//使用空白字符进行分割
 		strAarry := strings.Fields(content)
-		long1 := len(strAarry)
-		bufTemp := make([]byte, long1)
+		bufTemp := make([]byte, len(strAarry))
 		var i int
-		for i = 0; i < long1; i++ {
+		for i = 0; i < len(strAarry); i++ {
 			//16进制字符串转成10进制
 			temp, _ := strconv.ParseInt("0x"+strAarry[i], 0, 16)
 			fmt.Println("Tran16To10")
@@ -40,15 +37,11 @@ func Tran16StringTo10(content string, WholeOrseparate int) string {
 
 //十进制 转换成  16进制
 func Tran10StringTo16(content string) string {
-	fmt.Println("content=====1")
-	fmt.Println(content)
 	//使用空白字符进行分割
 	strAarry := strings.Fields(content)
-	long1 := len(strAarry)
-	//bufTemp := make([]byte, long1)
 	var resultString string
 	var i int
-	for i = 0; i < long1; i++ {
+	for i = 0; i < len(strAarry); i++ {
 		//10进制字符串转成16进制
 		temp, _ := strconv.ParseInt(strAarry[i], 0, 16)
 		tmpStr := toHex(int(temp))

@@ -60,8 +60,6 @@ func getValuebyCmdString(CmdContent string, serialPort string, baudRate string, 
 		bufTemp[i] = byte(temp)
 	}
 	s.Write(bufTemp)
-	//num, err := s.Write(bufTemp)
-	//fmt.Println(num)
 	buf := make([]byte, 100)
 	n, err := s.Read(buf)
 	fmt.Println(buf[:n])

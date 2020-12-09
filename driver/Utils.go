@@ -56,13 +56,11 @@ func getProperty(ipAddress string, ipPort string, equipmentName string) Protocol
 	resp.Body.Close()
 	//字符串替换
 	content := string(body)
-	//fmt.Println(content)
 	content = strings.Replace(content, "{\"data\":\"", "", -1)
 	content = strings.Replace(content, "\"}\"}", "\"}", -1)
 	content = strings.Replace(content, "\\\"", "\"", -1)
 	fmt.Println(content)
 	json.Unmarshal([]byte(content), &protocols)
-	//fmt.Println(fmt.Sprintf("%+v", protocols))
 	return protocols
 }
 
@@ -73,7 +71,7 @@ func mapPutAll(map1 map[string]string, map2 map[string]string) map[string]string
 	mapText1Str := strings.Replace(string(mapText1), "}", ",", -1)
 	mapText2Str := strings.Replace(string(mapText2), "{", "", -1)
 	mapText1Str = mapText1Str + mapText2Str
-	mapText1Str = strings.Replace(string(mapText1Str), "\"\":\"\",", "", -1)
+	mapText1Str = strings.Replace(mapText1Str, "\"\":\"\",", "", -1)
 	var map3 map[string]string
 	json.Unmarshal([]byte(mapText1Str), &map3)
 	return map3

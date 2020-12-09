@@ -41,7 +41,7 @@ func (s *SimpleDriver) HandleReadCommands(deviceName string, protocols map[strin
 	now := time.Now().UnixNano()
 	fmt.Println("DeviceName: " + deviceName)
 	//步骤1 得到串口的相关信息
-	//url := "http://192.168.2.10:8989/portType/equipmentEnName/7he1 "
+	//url := "http://192.168.2.10:8989/portType/equipmentEnName/7he1"
 	var ip string     //ip地址
 	var ipPort string //ip端口
 	for k, v := range protocols {
@@ -91,9 +91,7 @@ func (s *SimpleDriver) HandleReadCommands(deviceName string, protocols map[strin
 	//处理得到返回值
 	if attributes1.transcoding == "1" {
 		value12 = Tran10StringTo16(value12)
-		fmt.Println("follow122332")
 		fmt.Println("转码返回结果：" + value12)
-		fmt.Println("follow1222")
 	} else if attributes1.transcoding == "2" {
 		value12 = Tran16StringTo10(value12, 0)
 	}
