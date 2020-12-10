@@ -25,7 +25,7 @@ func getValuebyCmdStringTimes(CmdContent string, serialPort string, baudRate str
 串口连接，并且执行获取值
 */
 func getValuebyCmdString(CmdContent string, serialPort string, baudRate string, dataBits string, stopBits string, parity string) (string, []byte, error) {
-	fmt.Println("进入getValuebyCmdString")
+	fmt.Println("进入执行命令")
 	baudInt, err := strconv.Atoi(baudRate)
 	if err != nil {
 		return "Baud错误", nil, err
@@ -50,21 +50,33 @@ func getValuebyCmdString(CmdContent string, serialPort string, baudRate string, 
 		}
 	}
 	fmt.Println("连接成功" + serialPort)
-	//字符串的十六进制转成十进制
-	serialStrAarry := strings.Fields(CmdContent)
-	long1 := len(serialStrAarry)
-	bufTemp := make([]byte, long1)
-	var i int
-	for i = 0; i < long1; i++ {
-		temp, _ := strconv.ParseInt("0x"+serialStrAarry[i], 0, 16)
-		bufTemp[i] = byte(temp)
+	if CmdContent != "" {
+		fmt.Println("有命令，发送后获取值")
+		//字符串的十六进制转成十进制
+		serialStrAarry := strings.Fields(CmdContent)
+		long1 := len(serialStrAarry)
+		bufTemp := make([]byte, long1)
+		var i int
+		for i = 0; i < long1; i++ {
+			temp, _ := strconv.ParseInt("0x"+serialStrAarry[i], 0, 16)
+			bufTemp[i] = byte(temp)
+		}
+		s.Write(bufTemp)
+		buf := make([]byte, 100)
+		n, err := s.Read(buf)
+		fmt.Println(buf[:n])
+		//把buf[:n]转成字符串
+		str := convertByteToString(buf[:n])
+		fmt.Println("转化完成的字符串：" + str)
+		return str, buf[:n], err
+	} else {
+		fmt.Println("无命令，自动获取值")
+		buf := make([]byte, 200)
+		n, err := s.Read(buf)
+		fmt.Println(buf[:n])
+		//把buf[:n]转成字符串
+		str := convertByteToString(buf[:n])
+		fmt.Println("转化完成的字符串：" + str)
+		return str, buf[:n], err
 	}
-	s.Write(bufTemp)
-	buf := make([]byte, 100)
-	n, err := s.Read(buf)
-	fmt.Println(buf[:n])
-	//把buf[:n]转成字符串
-	str := convertByteToString(buf[:n])
-	fmt.Println("转化完成的字符串：" + str)
-	return str, buf[:n], err
 }

@@ -61,6 +61,8 @@ func (s *SimpleDriver) HandleReadCommands(deviceName string, protocols map[strin
 		attributes1.transcoding = tmpMap["transcoding"]
 		attributes1.handleReturnRules = tmpMap["handleReturnRules"]
 		attributes1.executionTimes = HF_Atoi(tmpMap["executionTimes"])
+		attributes1.regularExpression = tmpMap["regularExpression"]
+		attributes1.regularExpressionWhichOne = HF_Atoi(tmpMap["regularExpressionWhichOne"])
 	}
 	var handleReturnRuleList []handleReturnRule
 
@@ -87,6 +89,12 @@ func (s *SimpleDriver) HandleReadCommands(deviceName string, protocols map[strin
 	}
 	/*************没有连接成功****结束*****  **/
 	fmt.Println("返回结果：" + returnResult)
+	//是否使用正则表达式
+	if attributes1.regularExpression != "" {
+		fmt.Println("正则前。。。")
+		fmt.Println(returnResult)
+		fmt.Println("正则后")
+	}
 	/************************步骤3 - 开始 ************************************/
 	//是否需要转码
 	//处理得到返回值
