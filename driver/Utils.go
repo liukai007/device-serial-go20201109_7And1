@@ -109,3 +109,13 @@ func HF_Atos(s float64, f int) string {
 	num := strconv.FormatFloat(s, 'E', -1, f)
 	return num
 }
+
+func mapSuccess0(map1 map[string]string) map[string]string {
+	map1["success"] = "0"
+	return map1
+}
+
+func mapSuccess1(map1 map[string]string) map[string]string {
+	map1["success"] = "1"
+	return map1
+}

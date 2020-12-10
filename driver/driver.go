@@ -60,6 +60,7 @@ func (s *SimpleDriver) HandleReadCommands(deviceName string, protocols map[strin
 		attributes1.cmdContent = tmpMap["cmdContent"]
 		attributes1.transcoding = tmpMap["transcoding"]
 		attributes1.handleReturnRules = tmpMap["handleReturnRules"]
+		attributes1.executionTimes = HF_Atoi(tmpMap["executionTimes"])
 	}
 	var handleReturnRuleList []handleReturnRule
 
@@ -68,7 +69,8 @@ func (s *SimpleDriver) HandleReadCommands(deviceName string, protocols map[strin
 		json.Unmarshal([]byte(handleReturnRules), &handleReturnRuleList)
 	}
 	//多执行一次保证获取的字段正确
-	value12, by1, err := getValuebyCmdString(attributes1.cmdContent, protocol1.SerialPort, protocol1.BaudRate, protocol1.DataBits, protocol1.StopBits, protocol1.Parity)
+	//参数 命令， 串口号，波特率，数据位，停止位，奇偶校验位
+	returnResult, by1, err := getValuebyCmdStringTimes(attributes1.cmdContent, protocol1.SerialPort, protocol1.BaudRate, protocol1.DataBits, protocol1.StopBits, protocol1.Parity, attributes1.executionTimes)
 	/*************没有连接成功****开始*******/
 	if err != nil {
 		var cv1 *dsModels.CommandValue
@@ -84,15 +86,15 @@ func (s *SimpleDriver) HandleReadCommands(deviceName string, protocols map[strin
 		return res, nil
 	}
 	/*************没有连接成功****结束*****  **/
-
-	fmt.Println("返回结果：" + value12)
+	fmt.Println("返回结果：" + returnResult)
+	/************************步骤3 - 开始 ************************************/
 	//是否需要转码
 	//处理得到返回值
 	if attributes1.transcoding == "1" {
-		value12 = Tran10StringTo16(value12)
-		fmt.Println("转码返回结果：" + value12)
+		returnResult = Tran10StringTo16(returnResult)
+		fmt.Println("转码返回结果：" + returnResult)
 	} else if attributes1.transcoding == "2" {
-		value12 = Tran16StringTo10(value12, 0)
+		returnResult = Tran16StringTo10(returnResult, 0)
 	}
 
 	//res = make([]*dsModels.CommandValue, len(reqs))
@@ -115,8 +117,8 @@ func (s *SimpleDriver) HandleReadCommands(deviceName string, protocols map[strin
 					7 ==不包含
 				*/
 				if handleReturnRuleList[j].JudgeSymbol == 0 {
-					if value12 == handleReturnRuleList[j].RightResult {
-						returnStringMap["success"] = "1"
+					if returnResult == handleReturnRuleList[j].RightResult {
+						returnStringMap = mapSuccess1(returnStringMap)
 						//处理字符串根据 逗号  转换成数组
 						rtSz := strings.Split(handleReturnRuleList[j].ReadTypeReturnValueRange, ",")
 						if len(rtSz) == 1 {
@@ -124,11 +126,11 @@ func (s *SimpleDriver) HandleReadCommands(deviceName string, protocols map[strin
 							returnStringMap[handleReturnRuleList[j].ReadTypeName] = rtSz[0]
 						}
 					} else {
-						returnStringMap["success"] = "0"
+						returnStringMap = mapSuccess0(returnStringMap)
 					}
 					//不等于
 				} else if handleReturnRuleList[j].JudgeSymbol == 1 {
-					if value12 != handleReturnRuleList[j].RightResult {
+					if returnResult != handleReturnRuleList[j].RightResult {
 						rtSz := strings.Split(handleReturnRuleList[j].ReadTypeReturnValueRange, ",")
 						if len(rtSz) == 1 {
 							returnStringMap[handleReturnRuleList[j].ReadTypeName] = rtSz[0]
@@ -137,11 +139,11 @@ func (s *SimpleDriver) HandleReadCommands(deviceName string, protocols map[strin
 							returnStringMap = mapPutAll(returnStringMap, handleReturnRuleList[j].OtherReadTypeAndValue)
 						}
 					} else {
-						returnStringMap["success"] = "0"
+						returnStringMap = mapSuccess0(returnStringMap)
 					}
 					//包含
 				} else if handleReturnRuleList[j].JudgeSymbol == 6 {
-					if strings.Contains(value12, handleReturnRuleList[j].RightResult) {
+					if strings.Contains(returnResult, handleReturnRuleList[j].RightResult) {
 						rtSz := strings.Split(handleReturnRuleList[j].ReadTypeReturnValueRange, ",")
 						if len(rtSz) == 1 {
 							returnStringMap[handleReturnRuleList[j].ReadTypeName] = rtSz[0]
@@ -150,11 +152,11 @@ func (s *SimpleDriver) HandleReadCommands(deviceName string, protocols map[strin
 							returnStringMap = mapPutAll(returnStringMap, handleReturnRuleList[j].OtherReadTypeAndValue)
 						}
 					} else {
-						returnStringMap["success"] = "0"
+						returnStringMap = mapSuccess0(returnStringMap)
 					}
 					//不包含
 				} else if handleReturnRuleList[j].JudgeSymbol == 7 {
-					if !strings.Contains(value12, handleReturnRuleList[j].RightResult) {
+					if !strings.Contains(returnResult, handleReturnRuleList[j].RightResult) {
 						rtSz := strings.Split(handleReturnRuleList[j].ReadTypeReturnValueRange, ",")
 						if len(rtSz) == 1 {
 							returnStringMap[handleReturnRuleList[j].ReadTypeName] = rtSz[0]
@@ -163,7 +165,7 @@ func (s *SimpleDriver) HandleReadCommands(deviceName string, protocols map[strin
 							returnStringMap = mapPutAll(returnStringMap, handleReturnRuleList[j].OtherReadTypeAndValue)
 						}
 					} else {
-						returnStringMap["success"] = "0"
+						returnStringMap = mapSuccess0(returnStringMap)
 					}
 				}
 
@@ -179,7 +181,7 @@ func (s *SimpleDriver) HandleReadCommands(deviceName string, protocols map[strin
 
 				//一些数值型的计算----float
 			} else if handleReturnRuleList[j].ReturnType == 2 {
-				returnStringMap["success"] = "1"
+				returnStringMap = mapSuccess1(returnStringMap)
 				value := handleFloatValue(by1, handleReturnRuleList[j].GetSomeArray, handleReturnRuleList[j].Scale, handleReturnRuleList[j].AdditiveFactor, handleReturnRuleList[j].WholeOrseparate)
 				fmt.Printf("%f", value)
 				if handleReturnRuleList[j].ReadTypeName != "" && handleReturnRuleList[j].RightResult != "" {
@@ -215,7 +217,7 @@ func (s *SimpleDriver) HandleReadCommands(deviceName string, protocols map[strin
 									returnStringMap = make(map[string]string)
 									returnStringMap["equipmentNameEn"] = deviceName
 									returnStringMap["runningStatus"] = HF_Itoa(2)
-									returnStringMap["success"] = "0"
+									returnStringMap = mapSuccess0(returnStringMap)
 									valueString, _ := json.Marshal(returnStringMap)
 									cv1 = dsModels.NewStringValue(req.DeviceResourceName, now, string(valueString))
 									res[i] = cv1
@@ -239,7 +241,7 @@ func (s *SimpleDriver) HandleReadCommands(deviceName string, protocols map[strin
 
 				//一些数值型的计算----int
 			} else if handleReturnRuleList[j].ReturnType == 1 {
-				returnStringMap["success"] = "1"
+				returnStringMap = mapSuccess1(returnStringMap)
 				value := handleFloatValue(by1, handleReturnRuleList[j].GetSomeArray, handleReturnRuleList[j].Scale, handleReturnRuleList[j].AdditiveFactor, handleReturnRuleList[j].WholeOrseparate)
 				fmt.Printf("%f", value)
 				if handleReturnRuleList[j].ReadTypeName != "" && handleReturnRuleList[j].RightResult != "" {
@@ -272,7 +274,7 @@ func (s *SimpleDriver) HandleReadCommands(deviceName string, protocols map[strin
 									returnStringMap = make(map[string]string)
 									returnStringMap["equipmentNameEn"] = deviceName
 									returnStringMap["runningStatus"] = HF_Itoa(2)
-									returnStringMap["success"] = "0"
+									returnStringMap = mapSuccess0(returnStringMap)
 									valueString, _ := json.Marshal(returnStringMap)
 									cv1 = dsModels.NewStringValue(req.DeviceResourceName, now, string(valueString))
 									res[i] = cv1
@@ -401,9 +403,7 @@ func judgeSymbolAndRightResultInt(readTypeName string, value int, JudgeSymbol in
 			return resultReadTypeName(readTypeName, "0")
 		}
 	}
-
-	result["success"] = "0"
-	return result
+	return mapSuccess0(result)
 }
 
 func judgeSymbolAndRightResultFloat(readTypeName string, value float64, JudgeSymbol int, RightResult string) map[string]string {
@@ -466,12 +466,10 @@ func judgeSymbolAndRightResultFloat(readTypeName string, value float64, JudgeSym
 		}
 	}
 
-	result["success"] = "0"
-	return result
+	return mapSuccess0(result)
 }
 func resultReadTypeName(readTypeName string, readTypeValue string) map[string]string {
 	var result map[string]string
 	result[readTypeName] = readTypeValue
-	result["success"] = "1"
-	return result
+	return mapSuccess1(result)
 }
