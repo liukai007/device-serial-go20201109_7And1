@@ -62,7 +62,8 @@ func getValuebyCmdString(CmdContent string, serialPort string, baudRate string, 
 			bufTemp[i] = byte(temp)
 		}
 		s.Write(bufTemp)
-		buf := make([]byte, 100)
+		time.Sleep(2 * time.Second)
+		buf := make([]byte, 500)
 		n, err := s.Read(buf)
 		fmt.Println(buf[:n])
 		//把buf[:n]转成字符串
@@ -70,8 +71,9 @@ func getValuebyCmdString(CmdContent string, serialPort string, baudRate string, 
 		fmt.Println("转化完成的字符串：" + str)
 		return str, buf[:n], err
 	} else {
-		fmt.Println("无命令，自动获取值")
-		buf := make([]byte, 200)
+		fmt.Println("无命令，自动获取值 延时2秒")
+		time.Sleep(2 * time.Second)
+		buf := make([]byte, 500)
 		n, err := s.Read(buf)
 		fmt.Println(buf[:n])
 		//把buf[:n]转成字符串

@@ -16,6 +16,7 @@ import (
 	dsModels "github.com/edgexfoundry/device-sdk-go/pkg/models"
 	"github.com/edgexfoundry/go-mod-core-contracts/clients/logger"
 	contract "github.com/edgexfoundry/go-mod-core-contracts/models"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -89,12 +90,6 @@ func (s *SimpleDriver) HandleReadCommands(deviceName string, protocols map[strin
 	}
 	/*************没有连接成功****结束*****  **/
 	fmt.Println("返回结果：" + returnResult)
-	//是否使用正则表达式
-	if attributes1.regularExpression != "" {
-		fmt.Println("正则前。。。")
-		fmt.Println(returnResult)
-		fmt.Println("正则后")
-	}
 	/************************步骤3 - 开始 ************************************/
 	//是否需要转码
 	//处理得到返回值
@@ -103,6 +98,26 @@ func (s *SimpleDriver) HandleReadCommands(deviceName string, protocols map[strin
 		fmt.Println("转码返回结果：" + returnResult)
 	} else if attributes1.transcoding == "2" {
 		returnResult = Tran16StringTo10(returnResult, 0)
+	}
+	//是否使用正则表达式
+	if attributes1.regularExpression != "" {
+		fmt.Println("正则前。。。")
+		fmt.Println(attributes1.regularExpression)
+		fmt.Println(returnResult)
+		if attributes1.regularExpressionWhichOne == 0 {
+			reg := regexp.MustCompile(attributes1.regularExpression)
+			returnResult = reg.FindString(returnResult)
+		} else {
+			reg := regexp.MustCompile(attributes1.regularExpression)
+			MEIds := reg.FindAllString(returnResult, 3)
+			for i := 0; i < len(MEIds); i++ {
+				if i == attributes1.regularExpressionWhichOne {
+					returnResult = MEIds[i]
+					break
+				}
+			}
+		}
+		fmt.Println("正则后")
 	}
 
 	//res = make([]*dsModels.CommandValue, len(reqs))
