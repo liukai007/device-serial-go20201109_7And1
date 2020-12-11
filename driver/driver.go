@@ -121,7 +121,7 @@ func (s *SimpleDriver) HandleReadCommands(deviceName string, protocols map[strin
 	}
 
 	//res = make([]*dsModels.CommandValue, len(reqs))
-	if len(handleReturnRuleList) > 0 {
+	if len(handleReturnRuleList) == 1 {
 		fmt.Println("follow1")
 		for j := 0; j < len(handleReturnRuleList); j++ {
 			var returnStringMap map[string]string /*创建集合 */
@@ -322,6 +322,177 @@ func (s *SimpleDriver) HandleReadCommands(deviceName string, protocols map[strin
 
 		}
 	}
+	//如果 多个取数规则的话，走下面的这一路
+	if len(handleReturnRuleList) > 1 {
+		fmt.Println("多个规则处理")
+		var returnStringMap map[string]string /*创建集合 */
+		returnStringMap = make(map[string]string)
+		returnStringMap["equipmentNameEn"] = deviceName
+		for j := 0; j < len(handleReturnRuleList); j++ {
+			/*如果返回数组是字符型*/
+			if handleReturnRuleList[j].ReturnType == 0 {
+				/*
+					EQ(0, "等于"),
+					NE(1, "不等于"),
+					LT(2, "小于"),
+					GT(3, "大于"),
+					LE(4, "小于等于"),
+					GE(5, "大于等于");
+					6 ==包含
+					7 ==不包含
+				*/
+				if handleReturnRuleList[j].JudgeSymbol == 0 {
+					if returnResult == handleReturnRuleList[j].RightResult {
+						returnStringMap = mapSuccess1(returnStringMap)
+						//处理字符串根据 逗号  转换成数组
+						rtSz := strings.Split(handleReturnRuleList[j].ReadTypeReturnValueRange, ",")
+						if len(rtSz) == 1 {
+							fmt.Println(handleReturnRuleList[j].ReadTypeName)
+							returnStringMap[handleReturnRuleList[j].ReadTypeName] = rtSz[0]
+						}
+					} else {
+						returnStringMap = mapSuccess0(returnStringMap)
+					}
+					//不等于
+				} else if handleReturnRuleList[j].JudgeSymbol == 1 {
+					if returnResult != handleReturnRuleList[j].RightResult {
+						rtSz := strings.Split(handleReturnRuleList[j].ReadTypeReturnValueRange, ",")
+						if len(rtSz) == 1 {
+							returnStringMap[handleReturnRuleList[j].ReadTypeName] = rtSz[0]
+						}
+						if len(handleReturnRuleList[j].OtherReadTypeAndValue) > 0 {
+							returnStringMap = mapPutAll(returnStringMap, handleReturnRuleList[j].OtherReadTypeAndValue)
+						}
+					} else {
+						returnStringMap = mapSuccess0(returnStringMap)
+					}
+					//包含
+				} else if handleReturnRuleList[j].JudgeSymbol == 6 {
+					if strings.Contains(returnResult, handleReturnRuleList[j].RightResult) {
+						rtSz := strings.Split(handleReturnRuleList[j].ReadTypeReturnValueRange, ",")
+						if len(rtSz) == 1 {
+							returnStringMap[handleReturnRuleList[j].ReadTypeName] = rtSz[0]
+						}
+						if len(handleReturnRuleList[j].OtherReadTypeAndValue) > 0 {
+							returnStringMap = mapPutAll(returnStringMap, handleReturnRuleList[j].OtherReadTypeAndValue)
+						}
+					} else {
+						returnStringMap = mapSuccess0(returnStringMap)
+					}
+					//不包含
+				} else if handleReturnRuleList[j].JudgeSymbol == 7 {
+					if !strings.Contains(returnResult, handleReturnRuleList[j].RightResult) {
+						rtSz := strings.Split(handleReturnRuleList[j].ReadTypeReturnValueRange, ",")
+						if len(rtSz) == 1 {
+							returnStringMap[handleReturnRuleList[j].ReadTypeName] = rtSz[0]
+						}
+						if len(handleReturnRuleList[j].OtherReadTypeAndValue) > 0 {
+							returnStringMap = mapPutAll(returnStringMap, handleReturnRuleList[j].OtherReadTypeAndValue)
+						}
+					} else {
+						returnStringMap = mapSuccess0(returnStringMap)
+					}
+				}
+				if len(handleReturnRuleList[j].OtherReadTypeAndValue) > 0 {
+					returnStringMap = mapPutAll(returnStringMap, handleReturnRuleList[j].OtherReadTypeAndValue)
+				}
+
+				//一些数值型的计算----float
+			} else if handleReturnRuleList[j].ReturnType == 2 {
+				returnStringMap = mapSuccess1(returnStringMap)
+				value := handleFloatValue(by1, handleReturnRuleList[j].GetSomeArray, handleReturnRuleList[j].Scale, handleReturnRuleList[j].AdditiveFactor, handleReturnRuleList[j].WholeOrseparate)
+				fmt.Printf("%f", value)
+				if handleReturnRuleList[j].ReadTypeName != "" && handleReturnRuleList[j].RightResult != "" {
+					/*
+						func judgeSymbolAndRightResult(readTypeName string, value int, JudgeSymbol int, RightResult string) map[string]string {
+					*/
+					result := judgeSymbolAndRightResultFloat(handleReturnRuleList[j].ReadTypeName, value, handleReturnRuleList[j].JudgeSymbol, handleReturnRuleList[j].RightResult)
+					returnStringMap = mapPutAll(returnStringMap, result)
+				}
+
+				/*****************判断范围--开始************************/
+				if handleReturnRuleList[j].ReadTypeReturnValueRange != "" {
+					string1 := handleReturnRuleList[j].ReadTypeReturnValueRange
+					if strings.Contains(string1, "-") {
+						list := strings.Split(string1, "-")
+						if len(list) == 2 {
+							low := HF_Atof64(list[0])
+							high := HF_Atof64(list[1])
+							if value > high || value <= low {
+								var cv1 *dsModels.CommandValue
+								for i, req := range reqs {
+									var returnStringMap map[string]string /*创建集合 */
+									returnStringMap = make(map[string]string)
+									returnStringMap["equipmentNameEn"] = deviceName
+									returnStringMap["runningStatus"] = HF_Itoa(2)
+									returnStringMap = mapSuccess0(returnStringMap)
+									valueString, _ := json.Marshal(returnStringMap)
+									cv1 = dsModels.NewStringValue(req.DeviceResourceName, now, string(valueString))
+									res[i] = cv1
+								}
+								return res, nil
+							}
+						}
+					}
+				}
+				/*****************判断范围--结束************************/
+				returnStringMap[handleReturnRuleList[j].ReadTypeName] = strconv.FormatFloat(float64(value), 'f', 6, 64)
+				if len(handleReturnRuleList[j].OtherReadTypeAndValue) > 0 {
+					returnStringMap = mapPutAll(returnStringMap, handleReturnRuleList[j].OtherReadTypeAndValue)
+				}
+				//一些数值型的计算----int
+			} else if handleReturnRuleList[j].ReturnType == 1 {
+				returnStringMap = mapSuccess1(returnStringMap)
+				value := handleFloatValue(by1, handleReturnRuleList[j].GetSomeArray, handleReturnRuleList[j].Scale, handleReturnRuleList[j].AdditiveFactor, handleReturnRuleList[j].WholeOrseparate)
+				fmt.Printf("%f", value)
+				if handleReturnRuleList[j].ReadTypeName != "" && handleReturnRuleList[j].RightResult != "" {
+					result := judgeSymbolAndRightResultInt(handleReturnRuleList[j].ReadTypeName, int(value), handleReturnRuleList[j].JudgeSymbol, handleReturnRuleList[j].RightResult)
+					returnStringMap = mapPutAll(returnStringMap, result)
+				}
+
+				/*****************判断范围--开始************************/
+				if handleReturnRuleList[j].ReadTypeReturnValueRange != "" {
+					string1 := handleReturnRuleList[j].ReadTypeReturnValueRange
+					if strings.Contains(string1, "-") {
+						list := strings.Split(string1, "-")
+						if len(list) == 2 {
+							low := HF_Atof64(list[0])
+							high := HF_Atof64(list[1])
+							if value > high || value <= low {
+								var cv1 *dsModels.CommandValue
+								for i, req := range reqs {
+									var returnStringMap map[string]string /*创建集合 */
+									returnStringMap = make(map[string]string)
+									returnStringMap["equipmentNameEn"] = deviceName
+									returnStringMap["runningStatus"] = HF_Itoa(2)
+									returnStringMap = mapSuccess0(returnStringMap)
+									valueString, _ := json.Marshal(returnStringMap)
+									cv1 = dsModels.NewStringValue(req.DeviceResourceName, now, string(valueString))
+									res[i] = cv1
+								}
+								return res, nil
+							}
+						}
+					}
+				}
+				/*****************判断范围--结束************************/
+				returnStringMap[handleReturnRuleList[j].ReadTypeName] = HF_Atos(value, 64)
+				if len(handleReturnRuleList[j].OtherReadTypeAndValue) > 0 {
+					returnStringMap = mapPutAll(returnStringMap, handleReturnRuleList[j].OtherReadTypeAndValue)
+				}
+			}
+
+		}
+		//最后返回的东西
+		var cv *dsModels.CommandValue
+		for i, req := range reqs {
+			valueString, _ := json.Marshal(returnStringMap)
+			cv = dsModels.NewStringValue(req.DeviceResourceName, now, string(valueString))
+			res[i] = cv
+		}
+		return res, nil
+	}
+
 	return res, nil
 }
 
