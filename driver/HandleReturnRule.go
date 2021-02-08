@@ -4,7 +4,7 @@ package driver
 处理返回规则
 */
 type handleReturnRule struct {
-	ReturnType                int               `json:"returnType"`                //0 表示字符串 1 int 2 float
+	ReturnType                int               `json:"returnType"`                //0 字符串 1 int 2 float
 	ReadTypeName              string            `json:"readTypeName"`              //读数类型名字
 	RawResult                 string            `json:"rawResult"`                 //原始结果
 	OtherReadTypeAndValue     map[string]string `json:"otherReadTypeAndValue"`     //其他属性值，可以手动填写进去
